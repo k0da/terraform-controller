@@ -1,9 +1,10 @@
 module github.com/rancher/terraform-controller
 
-go 1.12
+go 1.13
 
 require (
 	github.com/docker/go-units v0.4.0
+	github.com/hashicorp/go-getter v1.4.1
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/onsi/ginkgo v1.7.0 // indirect
 	github.com/onsi/gomega v1.4.3 // indirect
@@ -14,11 +15,7 @@ require (
 	github.com/spf13/pflag v1.0.2 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/urfave/cli v1.20.0
-	golang.org/x/crypto v0.0.0-20190426145343-a29dc8fdc734 // indirect
-	golang.org/x/net v0.0.0-20190502183928-7f726cade0ab // indirect
-	golang.org/x/sys v0.0.0-20190502175342-a43fa875dd82 // indirect
 	golang.org/x/text v0.3.2 // indirect
-	golang.org/x/tools v0.0.0-20190521203540-521d6ed310dd // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	k8s.io/api v0.0.0-20190409021203-6e4e0e4f393b
 	k8s.io/apiextensions-apiserver v0.0.0-20190409022649-727a075fdec8

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sirupsen/logrus"
+	getter "github.com/hashicorp/go-getter"
 )
 
 func BranchCommit(ctx context.Context, url string, branch string, auth *Auth) (string, error) {
@@ -19,23 +19,30 @@ func BranchCommit(ctx context.Context, url string, branch string, auth *Auth) (s
 	return firstField(lines, fmt.Sprintf("no commit for branch: %s", branch))
 }
 
-func CloneRepo(ctx context.Context, url string, commit string, auth *Auth) error {
-	url, env, close := auth.Populate(url)
+func CloneRepo(ctx context.Context, url string, auth *Auth) error {
+	url, _, close := auth.Populate(url)
 	defer close()
 
-	lines, err := git(ctx, env, "clone", "-n", url, ".")
+	g := new(getter.GitGetter)
+
+	client := &getter.Client{
+		Ctx:     ctx,
+		Src:     url,
+		Dst:     ".",
+		Pwd:     ".",
+		Detectors: []getter.Detector{
+			new(getter.GitDetector),
+		},
+		Getters: map[string]getter.Getter{
+			"git": g,
+		},
+		Mode:    getter.ClientModeDir,
+	}
+
+	err := client.Get()
 	if err != nil {
 		return err
 	}
-
-	logrus.Infof("Output from git clone %v", lines)
-
-	lines, err = git(ctx, env, "checkout", commit)
-	if err != nil {
-		return err
-	}
-
-	logrus.Infof("Output from git checkout %v", lines)
 
 	return nil
 }

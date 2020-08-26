@@ -56,7 +56,7 @@ func run() error {
 	}
 
 	logrus.Info("before clone")
-	err = git.CloneRepo(context.Background(), runner.Execution.Spec.Content.Git.URL, runner.Execution.Spec.Content.Git.Commit, runner.GitAuth)
+	err = git.CloneRepo(context.Background(), runner.Execution.Spec.Content.Git.URL, runner.GitAuth)
 	if err != nil {
 		return err
 	}
