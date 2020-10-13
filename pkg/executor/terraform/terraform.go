@@ -2,19 +2,16 @@
 package terraform
 
 import (
-	"strings"
-
 	"github.com/rancher/terraform-controller/pkg/cmd"
-
 )
 
 const newLine = "\n"
 
 func Apply() (string, error) {
 	var cmd = shell.Command{
-                Command: "terraform",
-                Args:    []string{"apply", "-input=false", "-auto-approve", "tfplan"},
-        }
+		Command: "terraform",
+		Args:    []string{"apply", "-input=false", "-auto-approve", "tfplan"},
+	}
 	output, err := shell.Execute(cmd)
 	if err != nil {
 		return "", err
@@ -25,9 +22,9 @@ func Apply() (string, error) {
 
 func Destroy() (string, error) {
 	var cmd = shell.Command{
-                Command: "terraform",
-                Args:    []string{"destroy", "-input=false", "-auto-approve"},
-        }
+		Command: "terraform",
+		Args:    []string{"destroy", "-input=false", "-auto-approve"},
+	}
 	output, err := shell.Execute(cmd)
 	if err != nil {
 		return "", err
@@ -38,9 +35,9 @@ func Destroy() (string, error) {
 
 func Init() (string, error) {
 	var cmd = shell.Command{
-                Command: "terraform",
-                Args:    []string{"init", "-input=false"},
-        }
+		Command: "terraform",
+		Args:    []string{"init", "-input=false"},
+	}
 	output, err := shell.Execute(cmd)
 	if err != nil {
 		return "", err
@@ -52,9 +49,9 @@ func Init() (string, error) {
 // Output runs 'terraform output -json' and returns the blob as a string
 func Output() (string, error) {
 	var cmd = shell.Command{
-                Command: "terraform",
-                Args:    []string{"output", "-json"},
-        }
+		Command: "terraform",
+		Args:    []string{"output", "-json"},
+	}
 	output, err := shell.Execute(cmd)
 	if err != nil {
 		return "", err
@@ -71,9 +68,9 @@ func Plan(destroy bool) (string, error) {
 	}
 
 	var cmd = shell.Command{
-                Command: "terraform",
-                Args:    args,
-        }
+		Command: "terraform",
+		Args:    args,
+	}
 	output, err := shell.Execute(cmd)
 	if err != nil {
 		return "", err
