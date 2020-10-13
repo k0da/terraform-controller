@@ -83,7 +83,6 @@ func (h *handler) updateCommit(key string, module *v1.Module) (*v1.Module, error
 	gitChecked.Commit = commit
 	module.Status.GitChecked = &gitChecked
 	module.Status.CheckTime = metav1.Now()
-//	h.modules.UpdateStatus(module)
 
 	return module, nil
 }

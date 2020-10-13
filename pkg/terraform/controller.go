@@ -11,9 +11,9 @@ import (
 	corev1 "github.com/rancher/wrangler-api/pkg/generated/controllers/core/v1"
 	rbacv1 "github.com/rancher/wrangler-api/pkg/generated/controllers/rbac/v1"
 	"github.com/rancher/wrangler/pkg/relatedresource"
-	"k8s.io/apimachinery/pkg/runtime"
 	core "k8s.io/api/core/v1"
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 func Register(
@@ -39,29 +39,29 @@ func Register(
 				return nil, err
 			}
 			for _, state := range stateList.Items {
-				if _,ok := obj.(*core.ConfigMap); ok {
+				if _, ok := obj.(*core.ConfigMap); ok {
 					for _, envCm := range state.Spec.Variables.EnvConfigName {
-						config:= obj.(*core.ConfigMap)
+						config := obj.(*core.ConfigMap)
 						if envCm == config.Name {
 							statesFound = append(statesFound, state.Name)
 						}
 					}
 					for _, configmap := range state.Spec.Variables.ConfigNames {
-						config:= obj.(*core.ConfigMap)
+						config := obj.(*core.ConfigMap)
 						if configmap == config.Name {
 							statesFound = append(statesFound, state.Name)
 						}
 					}
 				}
-				if _,ok := obj.(*core.Secret); ok {
+				if _, ok := obj.(*core.Secret); ok {
 					for _, envSecret := range state.Spec.Variables.EnvSecretNames {
-						secret:= obj.(*core.Secret)
+						secret := obj.(*core.Secret)
 						if envSecret == secret.Name {
 							statesFound = append(statesFound, state.Name)
 						}
 					}
 					for _, rSecret := range state.Spec.Variables.SecretNames {
-						secret:= obj.(*core.Secret)
+						secret := obj.(*core.Secret)
 						if rSecret == secret.Name {
 							statesFound = append(statesFound, state.Name)
 						}
