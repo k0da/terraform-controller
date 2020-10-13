@@ -32,7 +32,7 @@ type Input struct {
 // deployCreate creates all resources for the job to run terraform create and returns the run name
 func (h *handler) deployCreate(state *v1.State, input *Input) (*v1.Execution, error) {
 	runHash := createRunHash(state, input, ActionCreate)
-	jsonVars, err := json.Marshal(getCombinedVars(state, input))
+	jsonVars, err := json.Marshal(combineVars(input))
 	if err != nil {
 		return &v1.Execution{}, err
 	}
@@ -97,7 +97,7 @@ func (h *handler) deployCreate(state *v1.State, input *Input) (*v1.Execution, er
 // deployCreate creates all resources for the job to run terraform destroy
 func (h *handler) deployDestroy(state *v1.State, input *Input) (*v1.Execution, error) {
 	runHash := createRunHash(state, input, ActionDestroy)
-	jsonVars, err := json.Marshal(getCombinedVars(state, input))
+	jsonVars, err := json.Marshal(combineVars(input))
 	if err != nil {
 		return nil, err
 	}
@@ -442,13 +442,8 @@ func createEnvForJob(input *Input, action, runName, namespace string) {
 	input.EnvVars = append(input.EnvVars, envVars...)
 }
 
-func getCombinedVars(state *v1.State, input *Input) map[string]string {
-	combinedVars := combineVars(input)
-
-	return combinedVars
-}
 func createRunHash(state *v1.State, input *Input, action string) string {
-	return generateRunHash(state, getCombinedVars(state, input), input.Module.Status.ContentHash, action)
+	return generateRunHash(state, combineVars(input), input.Module.Status.ContentHash, action)
 }
 
 func generateRunHash(state *v1.State, vars map[string]string, h string, a string) string {

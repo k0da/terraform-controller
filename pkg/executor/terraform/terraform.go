@@ -81,12 +81,3 @@ func Plan(destroy bool) (string, error) {
 
 	return output, nil
 }
-
-func combineOutput(in []string) string {
-	var b strings.Builder
-	for _, v := range in {
-		b.WriteString(v)
-		b.WriteString(newLine)
-	}
-	return b.String()
-}
