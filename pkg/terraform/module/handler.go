@@ -61,6 +61,7 @@ func (h *handler) updateHash(module *v1.Module, hash string) (*v1.Module, error)
 	if isPolling(module.Spec) && module.Status.GitChecked != nil {
 		module.Status.Content.Git.Commit = module.Status.GitChecked.Commit
 	}
+	h.modules.UpdateStatus(module)
 	return h.modules.Update(module)
 }
 
