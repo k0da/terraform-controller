@@ -5,8 +5,6 @@ import (
 	"github.com/rancher/terraform-controller/pkg/cmd"
 )
 
-const newLine = "\n"
-
 func Apply() (string, error) {
 	var cmd = shell.Command{
 		Command: "terraform",
