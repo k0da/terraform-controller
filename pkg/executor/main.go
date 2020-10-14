@@ -73,14 +73,14 @@ func run() error {
 		return err
 	}
 
-	out, err := runner.TerraformInit()
+	_, err = runner.TerraformInit()
 	if err != nil {
 		return err
 	}
 
 	switch runner.Action {
 	case "create":
-		out, err = runner.Create()
+		out, err := runner.Create()
 		if err != nil {
 			return err
 		}
@@ -100,7 +100,7 @@ func run() error {
 			return err
 		}
 	case "destroy":
-		out, err = runner.Destroy()
+		out, err := runner.Destroy()
 		if err != nil {
 			return err
 		}
