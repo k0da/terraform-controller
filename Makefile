@@ -7,6 +7,12 @@ TARGETS := $(shell ls scripts)
 	@./.dapper.tmp -v
 	@mv .dapper.tmp .dapper
 
+.PHONY: lint
+lint:
+	staticcheck ./...
+	errcheck ./...
+	golint '-set_exit_status=1' ./...
+
 $(TARGETS): .dapper
 	./.dapper $@
 

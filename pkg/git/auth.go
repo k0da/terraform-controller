@@ -46,16 +46,16 @@ func FromSecret(secret map[string][]byte) (Auth, error) {
 	return auth, nil
 }
 
-func (a Auth) Populate(url string) (string, []string, func()) {
+func (a Auth) Populate(url string) (string, map[string]string, func()) {
 	url = a.Basic.populate(url)
 	env, close := a.SSH.populate()
 	if len(env) == 0 {
-		env = []string{"GIT_SSH_COMAND=ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"}
+		env = map[string]string{"GIT_SSH_COMMAND": "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"}
 	}
 	return url, env, close
 }
 
-func (b Basic) fromSecret(secret map[string][]byte) bool {
+func (b *Basic) fromSecret(secret map[string][]byte) bool {
 	username, unameOK := secret[BasicAuthUsernameKey]
 	if unameOK {
 		b.Username = string(username)
@@ -68,7 +68,7 @@ func (b Basic) fromSecret(secret map[string][]byte) bool {
 	return unameOK && pwdOK
 }
 
-func (b Basic) populate(gitURL string) string {
+func (b *Basic) populate(gitURL string) string {
 	if b.Username == "" && b.Password == "" {
 		return gitURL
 	}
@@ -82,7 +82,7 @@ func (b Basic) populate(gitURL string) string {
 	return u.String()
 }
 
-func (s SSH) fromSecret(secret map[string][]byte) bool {
+func (s *SSH) fromSecret(secret map[string][]byte) bool {
 	key, ok := secret[SSHAuthPrivateKey]
 	if ok {
 		s.Key = key
@@ -90,7 +90,7 @@ func (s SSH) fromSecret(secret map[string][]byte) bool {
 	return ok
 }
 
-func (s SSH) populate() ([]string, func()) {
+func (s *SSH) populate() (map[string]string, func()) {
 	if len(s.Key) == 0 {
 		return nil, noop
 	}
@@ -112,7 +112,8 @@ func (s SSH) populate() ([]string, func()) {
 		return nil, close
 	}
 
-	return []string{
-		fmt.Sprintf("GIT_SSH_COMAND=ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i %s", f.Name()),
-	}, close
+	env := make(map[string]string)
+	env["GIT_SSH_COMMAND"] = fmt.Sprintf("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i %s", f.Name())
+
+	return env, close
 }

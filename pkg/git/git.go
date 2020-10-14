@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/rancher/terraform-controller/pkg/cmd"
 	"github.com/sirupsen/logrus"
 )
 
@@ -11,7 +12,12 @@ func BranchCommit(ctx context.Context, url string, branch string, auth *Auth) (s
 	url, env, close := auth.Populate(url)
 	defer close()
 
-	lines, err := git(ctx, env, "ls-remote", url, formatRefForBranch(branch))
+	var cmd = shell.Command{
+		Command: "git",
+		Env:     env,
+		Args:    []string{"ls-remote", url, formatRefForBranch(branch)},
+	}
+	lines, err := shell.Execute(cmd)
 	if err != nil {
 		return "", err
 	}
@@ -23,19 +29,30 @@ func CloneRepo(ctx context.Context, url string, commit string, auth *Auth) error
 	url, env, close := auth.Populate(url)
 	defer close()
 
-	lines, err := git(ctx, env, "clone", "-n", url, ".")
+	var cloneCmd = shell.Command{
+		Command: "git",
+		Env:     env,
+		Args:    []string{"clone", "-n", url, "."},
+	}
+	var checkoutCmd = shell.Command{
+		Command: "git",
+		Env:     env,
+		Args:    []string{"checkout", commit},
+	}
+
+	_, err := shell.Execute(cloneCmd)
 	if err != nil {
 		return err
 	}
 
-	logrus.Infof("Output from git clone %v", lines)
+	logrus.Infof("git clone: Done")
 
-	lines, err = git(ctx, env, "checkout", commit)
+	_, err = shell.Execute(checkoutCmd)
 	if err != nil {
 		return err
 	}
 
-	logrus.Infof("Output from git checkout %v", lines)
+	logrus.Infof("git checkout: done")
 
 	return nil
 }

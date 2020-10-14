@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 
@@ -55,34 +54,33 @@ func run() error {
 		return err
 	}
 
-	logrus.Info("before clone")
+	logrus.Info("Cloning ", runner.Execution.Spec.Content.Git.URL)
 	err = git.CloneRepo(context.Background(), runner.Execution.Spec.Content.Git.URL, runner.Execution.Spec.Content.Git.Commit, runner.GitAuth)
 	if err != nil {
 		return err
 	}
 
-	logrus.Info("before config")
+	logrus.Info("Writing backend config")
 
 	err = runner.WriteConfigFile()
 	if err != nil {
 		return err
 	}
 
+	logrus.Info("Writing varFile")
 	err = runner.WriteVarFile()
 	if err != nil {
 		return err
 	}
 
-	out, err := runner.TerraformInit()
+	_, err = runner.TerraformInit()
 	if err != nil {
 		return err
 	}
 
-	fmt.Print(out)
-
 	switch runner.Action {
 	case "create":
-		out, err = runner.Create()
+		out, err := runner.Create()
 		if err != nil {
 			return err
 		}
@@ -102,7 +100,7 @@ func run() error {
 			return err
 		}
 	case "destroy":
-		out, err = runner.Destroy()
+		out, err := runner.Destroy()
 		if err != nil {
 			return err
 		}
