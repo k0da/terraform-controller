@@ -2,13 +2,16 @@
 package terraform
 
 import (
-	"github.com/rancher/terraform-controller/pkg/cmd"
+	"os"
+
+	shell "github.com/rancher/terraform-controller/pkg/cmd"
 )
 
 func Apply() (string, error) {
 	var cmd = shell.Command{
-		Command: "terraform",
-		Args:    []string{"apply", "-input=false", "-auto-approve", "tfplan"},
+		WorkingDir: getWorkingDir(),
+		Command:    "terraform",
+		Args:       []string{"apply", "-input=false", "-auto-approve", "tfplan"},
 	}
 	output, err := shell.Execute(cmd)
 	if err != nil {
@@ -18,10 +21,19 @@ func Apply() (string, error) {
 	return output, nil
 }
 
+func getWorkingDir() string {
+	dir := os.Getenv("TF_DIR")
+	if dir == "" {
+		dir = "."
+	}
+	return dir
+}
+
 func Destroy() (string, error) {
 	var cmd = shell.Command{
-		Command: "terraform",
-		Args:    []string{"destroy", "-input=false", "-auto-approve"},
+		WorkingDir: getWorkingDir(),
+		Command:    "terraform",
+		Args:       []string{"destroy", "-input=false", "-auto-approve"},
 	}
 	output, err := shell.Execute(cmd)
 	if err != nil {
@@ -33,8 +45,9 @@ func Destroy() (string, error) {
 
 func Init() (string, error) {
 	var cmd = shell.Command{
-		Command: "terraform",
-		Args:    []string{"init", "-input=false"},
+		WorkingDir: getWorkingDir(),
+		Command:    "terraform",
+		Args:       []string{"init", "-input=false"},
 	}
 	output, err := shell.Execute(cmd)
 	if err != nil {
@@ -47,8 +60,9 @@ func Init() (string, error) {
 // Output runs 'terraform output -json' and returns the blob as a string
 func Output() (string, error) {
 	var cmd = shell.Command{
-		Command: "terraform",
-		Args:    []string{"output", "-json"},
+		WorkingDir: getWorkingDir(),
+		Command:    "terraform",
+		Args:       []string{"output", "-json"},
 	}
 	output, err := shell.Execute(cmd)
 	if err != nil {
@@ -66,8 +80,9 @@ func Plan(destroy bool) (string, error) {
 	}
 
 	var cmd = shell.Command{
-		Command: "terraform",
-		Args:    args,
+		WorkingDir: getWorkingDir(),
+		Command:    "terraform",
+		Args:       args,
 	}
 	output, err := shell.Execute(cmd)
 	if err != nil {

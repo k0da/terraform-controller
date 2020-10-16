@@ -3,7 +3,8 @@ package state
 import (
 	"context"
 	"fmt"
-	"github.com/rancher/terraform-controller/pkg/apis/terraformcontroller.cattle.io/v1"
+
+	v1 "github.com/rancher/terraform-controller/pkg/apis/terraformcontroller.cattle.io/v1"
 	tfv1 "github.com/rancher/terraform-controller/pkg/generated/controllers/terraformcontroller.cattle.io/v1"
 	batchv1 "github.com/rancher/wrangler-api/pkg/generated/controllers/batch/v1"
 	corev1 "github.com/rancher/wrangler-api/pkg/generated/controllers/core/v1"

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	paths "path"
 
 	"github.com/rancher/terraform-controller/pkg/executor/runner"
 	"github.com/rancher/terraform-controller/pkg/git"
@@ -12,6 +13,8 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
+
+const TfWritePath = "/root/module/"
 
 func main() {
 	if os.Getenv("EXECUTOR_DEBUG") == "true" {
@@ -62,13 +65,18 @@ func run() error {
 
 	logrus.Info("Writing backend config")
 
-	err = runner.WriteConfigFile()
+	path := TfWritePath
+
+	if runner.Execution.Spec.Content.Git.Path != "" {
+		path = paths.Join(TfWritePath, runner.Execution.Spec.Content.Git.Path)
+	}
+	err = runner.WriteConfigFile(path)
 	if err != nil {
 		return err
 	}
 
-	logrus.Info("Writing varFile")
-	err = runner.WriteVarFile()
+	logrus.Info("Writing varFile into %s", path)
+	err = runner.WriteVarFile(path)
 	if err != nil {
 		return err
 	}
