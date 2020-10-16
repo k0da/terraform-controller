@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/rancher/terraform-controller/pkg/cmd"
+	shell "github.com/rancher/terraform-controller/pkg/cmd"
 	"github.com/sirupsen/logrus"
 )
 

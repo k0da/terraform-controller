@@ -52,6 +52,7 @@ type GitLocation struct {
 	Tag             string `json:"tag,omitempty"`
 	Commit          string `json:"commit,omitempty"`
 	SecretName      string `json:"secretName,omitempty"`
+	Path            string `json:"path,omitempty"`
 	IntervalSeconds int    `json:"intervalSeconds,omitempty"`
 }
 
