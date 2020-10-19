@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	paths "path"
 	"strings"
 	"time"
 
@@ -226,6 +227,10 @@ func (r *Runner) Populate() error {
 	}
 	r.VarSecret = vSecret
 
+	if r.Execution.Spec.Content.Git.Path != "" {
+		os.Setenv("TF_DIR", r.Execution.Spec.Content.Git.Path)
+	}
+
 	return nil
 }
 
@@ -281,7 +286,7 @@ func (r *Runner) SetExecutionLogs(s string) error {
 	})
 }
 
-func (r *Runner) WriteConfigFile() error {
+func (r *Runner) WriteConfigFile(path string) error {
 	config := Config{
 		Terraform: Terraform{
 			Backend: map[string]*Backend{
@@ -295,27 +300,33 @@ func (r *Runner) WriteConfigFile() error {
 	}
 
 	jsonConfig, err := json.Marshal(config)
+	backendPath := paths.Join(path, "config.tf.json")
 	if err != nil {
 		return err
 	}
 
-	err = writer.Write(jsonConfig, "/root/module/config.tf.json")
+	err = writer.Write(jsonConfig, backendPath)
 	if err != nil {
 		return err
 	}
 
+	logrus.Infof("Wrote backend config ", backendPath)
 	return nil
 }
 
-func (r *Runner) WriteVarFile() error {
+func (r *Runner) WriteVarFile(path string) error {
 	vars, ok := r.VarSecret.Data["varFile"]
+	config := fmt.Sprintf("%v.auto.tfvars.json", r.Execution.Name)
+	configPath := paths.Join(path, config)
+
 	if !ok {
 		return fmt.Errorf("no varFile data found in secret %v", r.VarSecret.Name)
 	}
-	err := writer.Write(vars, fmt.Sprintf("/root/module/%v.auto.tfvars.json", r.Execution.Name))
+	err := writer.Write(vars, configPath)
 	if err != nil {
 		return err
 	}
+	logrus.Infof("Wrote config ", configPath)
 	return nil
 }
 
