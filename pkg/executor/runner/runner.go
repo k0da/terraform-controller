@@ -272,9 +272,6 @@ func (r *Runner) SetExecutionLogs(s string) error {
 
 		copy := exec.DeepCopy()
 		copy.Status.JobLogs = base64.StdEncoding.EncodeToString(compressedLogs)
-		if err != nil {
-			return err
-		}
 
 		exec, err = r.executions.Update(copy)
 		if err != nil {

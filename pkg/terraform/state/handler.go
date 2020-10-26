@@ -77,8 +77,8 @@ func (h *handler) OnChange(key string, obj *v1.State) (*v1.State, error) {
 	}
 
 	if !ok {
-		v1.ExecutionConditionMissingInfo.SetStatus(obj, err.Error())
-		logrus.Debugf("missing info %v", err.Error())
+		v1.ExecutionConditionMissingInfo.SetStatusBool(obj, ok)
+		logrus.Debug("missing info")
 		return h.states.Update(obj)
 	}
 
@@ -151,7 +151,7 @@ func (h *handler) OnRemove(key string, obj *v1.State) (*v1.State, error) {
 		return obj, err
 	}
 	if !ok {
-		v1.ExecutionConditionMissingInfo.SetStatus(obj, err.Error())
+		v1.ExecutionConditionMissingInfo.SetStatusBool(obj, ok)
 		state, err := h.states.Update(obj)
 		if err != nil {
 			return state, err
