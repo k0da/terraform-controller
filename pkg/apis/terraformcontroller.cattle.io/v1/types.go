@@ -34,8 +34,9 @@ type ModuleSpec struct {
 }
 
 type ModuleContent struct {
-	Content map[string]string `json:"content,omitempty"`
-	Git     GitLocation       `json:"git,omitempty"`
+	Content           map[string]string `json:"content,omitempty"`
+	Git               GitLocation       `json:"git,omitempty"`
+	WebhookSecretName string            `json:"webhookSecretName,omitempty"`
 }
 
 type ModuleStatus struct {
