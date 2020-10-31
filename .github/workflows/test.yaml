@@ -13,3 +13,26 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.29
+  e2e:
+    env:
+      NAMESPACE: terraform-controller
+    runs-on: ubuntu-latest
+    name: e2e
+    steps:
+      - name: checkout
+        uses: actions/checkout@v1
+      - name: build controller
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.14.8' # The Go version to download (if necessary) and use.
+      - run: scripts/version
+      - run: |
+          export LINKFLAGS="-extldflags -static -s"
+          mkdir -p bin/
+      - name: Build controller
+        run: CGO_ENABLED=0 go build -ldflags "-X main.VERSION=$VERSION $LINKFLAGS" -o bin/terraform-controller
+      - name: Start KIND cluster (E2E)
+        uses: engineerd/setup-kind@v0.4.0
+        run: |
+          nohup ./bin/terraform-controller &
+          go test -json -count=1 ./e2e/...
