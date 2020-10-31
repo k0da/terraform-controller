@@ -12,6 +12,7 @@ import (
 	"github.com/rancher/terraform-controller/pkg/interval"
 	corev1 "github.com/rancher/wrangler-api/pkg/generated/controllers/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/sirupsen/logrus"
 )
 
 func NewHandler(ctx context.Context, modules tfv1.ModuleController, secrets corev1.SecretController) *handler {
@@ -32,21 +33,27 @@ func (h *handler) OnChange(key string, module *v1.Module) (*v1.Module, error) {
 	if module == nil {
 		return nil, nil
 	}
+	logrus.Info("Update event........")
 	if module.Spec.Git.IntervalSeconds == 0 {
 		module.Spec.Git.IntervalSeconds = int(interval.DefaultInterval / time.Second)
 	}
 
 	if isPolling(module.Spec) && needsUpdate(module) {
+		logrus.Info("Update commit")
 		return h.updateCommit(key, module)
 	}
+	logrus.Info("before computeHash")
 	hash := computeHash(module)
 	if module.Status.ContentHash != hash {
+		logrus.Info("Hash is different")
 		return h.updateHash(module, hash)
 	}
 
+	logrus.Info("Git is updated")
 	h.modules.EnqueueAfter(module.Namespace, module.Name, time.Duration(module.Spec.Git.IntervalSeconds)*time.Second)
+	logrus.Info("Module enqueued")
 
-	return module, nil
+	return h.modules.Update(module)
 }
 
 func (h *handler) OnRemove(key string, module *v1.Module) (*v1.Module, error) {
@@ -55,17 +62,20 @@ func (h *handler) OnRemove(key string, module *v1.Module) (*v1.Module, error) {
 }
 
 func (h *handler) updateHash(module *v1.Module, hash string) (*v1.Module, error) {
+	logrus.Info("within updateHash")
 	module = module.DeepCopy()
 	module.Status.Content = module.Spec.ModuleContent
 	module.Status.ContentHash = hash
 	if isPolling(module.Spec) && module.Status.GitChecked != nil {
+		logrus.Info("Gitchecked is set")
 		module.Status.Content.Git.Commit = module.Status.GitChecked.Commit
 	}
-	h.modules.UpdateStatus(module)
+	//h.modules.UpdateStatus(module)
 	return h.modules.Update(module)
 }
 
 func (h *handler) updateCommit(key string, module *v1.Module) (*v1.Module, error) {
+	logrus.Infof("Within updateCommit with key %s", key)
 	branch := module.Spec.Git.Branch
 	if branch == "" {
 		branch = "master"
@@ -86,7 +96,9 @@ func (h *handler) updateCommit(key string, module *v1.Module) (*v1.Module, error
 	module.Status.GitChecked = &gitChecked
 	module.Status.CheckTime = metav1.Now()
 
-	return module, nil
+	v1.ModuleConditionGitUpdated.True(module)
+
+	return h.modules.Update(module)
 }
 
 func (h *handler) getAuth(ns string, spec v1.ModuleSpec) (git.Auth, error) {
@@ -122,9 +134,10 @@ func isPolling(spec v1.ModuleSpec) bool {
 
 func computeHash(obj *v1.Module) string {
 	if len(obj.Spec.Content) > 0 {
+		logrus.Info("content is not empty")
 		return digest.SHA256Map(obj.Spec.Content)
 	}
-
+	logrus.Info("Within computeHash")
 	git := obj.Spec.Git
 	if git.URL == "" {
 		return ""

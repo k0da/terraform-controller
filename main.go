@@ -7,9 +7,12 @@ package main
 import (
 	"context"
 	"os"
+	"net/http"
 
 	"github.com/rancher/terraform-controller/pkg/generated/controllers/terraformcontroller.cattle.io"
 	"github.com/rancher/terraform-controller/pkg/terraform"
+	"github.com/rancher/terraform-controller/pkg/hooks"
+	"github.com/rancher/terraform-controller/pkg/types"
 	"github.com/rancher/wrangler-api/pkg/generated/controllers/batch"
 	"github.com/rancher/wrangler-api/pkg/generated/controllers/core"
 	"github.com/rancher/wrangler-api/pkg/generated/controllers/rbac"
@@ -35,6 +38,11 @@ func main() {
 			Name:   "threads",
 			EnvVar: "THREADS",
 			Value:  2,
+		},
+		cli.StringFlag{
+			Name:   "listen",
+			EnvVar: "LISTEN",
+			Value:  ":3000",
 		},
 		cli.BoolFlag{
 			Name:   "debug",
@@ -114,6 +122,7 @@ func run(c *cli.Context) {
 		logrus.Fatalf("Error building rbac controllers: %s", err.Error())
 	}
 
+	go func(){
 	terraform.Register(ctx,
 		tfFactory.Terraformcontroller().V1().Module(),
 		tfFactory.Terraformcontroller().V1().State(),
@@ -131,4 +140,12 @@ func run(c *cli.Context) {
 	}
 
 	<-ctx.Done()
+	}()
+	cont := types.NewContext(ns, tfFactory)
+	logrus.Info("Setting up webhook listener")
+	addr := c.String("listen")
+	handler := hooks.HandleHooks(cont)
+	http.ListenAndServe(addr, handler)
+	<-ctx.Done()
+
 }
