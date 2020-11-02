@@ -3,7 +3,7 @@ package types
 import (
 
 	tfv1 "github.com/rancher/terraform-controller/pkg/generated/controllers/terraformcontroller.cattle.io"
-	core "github.com/rancher/wrangler-api/pkg/generated/controllers/core"
+	core "github.com/rancher/wrangler/pkg/generated/controllers/core"
 )
 
 type Context struct {

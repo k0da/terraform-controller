@@ -10,7 +10,7 @@ import (
 	tfv1 "github.com/rancher/terraform-controller/pkg/generated/controllers/terraformcontroller.cattle.io/v1"
 	"github.com/rancher/terraform-controller/pkg/git"
 	"github.com/rancher/terraform-controller/pkg/interval"
-	corev1 "github.com/rancher/wrangler-api/pkg/generated/controllers/core/v1"
+	corev1 "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
