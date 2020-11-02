@@ -310,7 +310,7 @@ func (r *Runner) WriteConfigFile(path string) error {
 		return err
 	}
 
-	logrus.Infof("Wrote backend config ", backendPath)
+	logrus.Infof("Wrote backend config %s", backendPath)
 	return nil
 }
 
@@ -326,7 +326,7 @@ func (r *Runner) WriteVarFile(path string) error {
 	if err != nil {
 		return err
 	}
-	logrus.Infof("Wrote config ", configPath)
+	logrus.Infof("Wrote config %s", configPath)
 	return nil
 }
 

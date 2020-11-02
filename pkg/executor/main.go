@@ -75,7 +75,7 @@ func run() error {
 		return err
 	}
 
-	logrus.Info("Writing varFile into %s", path)
+	logrus.Infof("Writing varFile into %s", path)
 	err = runner.WriteVarFile(path)
 	if err != nil {
 		return err

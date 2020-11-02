@@ -34,17 +34,15 @@ func (h *handler) OnChange(key string, module *v1.Module) (*v1.Module, error) {
 	}
 
 	if isPolling(module.Spec) && needsUpdate(module) {
-		h.updateCommit(key, module)
+		return h.updateCommit(key, module)
 	}
 	hash := computeHash(module)
 	if module.Status.ContentHash != hash {
 		return h.updateHash(module, hash)
 	}
 
-	h.modules.Update(module)
-	h.modules.UpdateStatus(module)
 	h.modules.EnqueueAfter(module.Namespace, module.Name, time.Duration(module.Spec.Git.IntervalSeconds)*time.Second)
-	return module, nil
+	return h.modules.Update(module)
 }
 
 func (h *handler) OnRemove(key string, module *v1.Module) (*v1.Module, error) {
@@ -59,7 +57,6 @@ func (h *handler) updateHash(module *v1.Module, hash string) (*v1.Module, error)
 	if isPolling(module.Spec) && module.Status.GitChecked != nil {
 		module.Status.Content.Git.Commit = module.Status.GitChecked.Commit
 	}
-	h.modules.UpdateStatus(module)
 	return h.modules.Update(module)
 }
 
@@ -84,7 +81,9 @@ func (h *handler) updateCommit(key string, module *v1.Module) (*v1.Module, error
 	module.Status.GitChecked = &gitChecked
 	module.Status.CheckTime = metav1.Now()
 
-	return module, nil
+	v1.ModuleConditionGitUpdated.True(module)
+
+	return h.modules.Update(module)
 }
 
 func (h *handler) getAuth(ns string, spec v1.ModuleSpec) (git.Auth, error) {

@@ -1,0 +1,56 @@
+name: Test
+
+on: pull_request
+
+jobs:
+  golangci:
+    runs-on: ubuntu-latest
+    name: lint
+    steps:
+      - name: checkout
+        uses: actions/checkout@v1
+      - name: golang-ci
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.32
+          args: --deadline 2m
+  e2e:
+    env:
+      NAMESPACE: terraform-controller
+      LINKFLAGS: "-extldflags -static -s"
+    runs-on: ubuntu-latest
+    name: e2e
+    steps:
+      - name: checkout
+        uses: actions/checkout@v1
+      - name: build controller
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.14.8' # The Go version to download (if necessary) and use.
+      - run: scripts/version
+      - run: |
+          mkdir -p bin/
+      - name: Build controller
+        run: CGO_ENABLED=0 go build -ldflags "-X main.VERSION=$VERSION $LINKFLAGS" -o bin/terraform-controller
+      - name: Build executor
+        run: CGO_ENABLED=0 go build -ldflags "-X main.VERSION=$VERSION $LINKFLAGS" -o bin/terraform-executor ./pkg/executor 
+      - name: Build executor image
+        uses: docker/build-push-action@v1
+        with:
+          repository: terraform-controller-executor
+          push: false
+          path: ./bin
+          dockerfile: package/Dockerfile.executor
+          tags: e2e
+      - name: Start KIND cluster
+        uses: engineerd/setup-kind@v0.4.0
+        with:
+          name: e2e
+      - name: Load executor image
+        run: kind load docker-image terraform-controller-executor:e2e --name e2e
+      - name: Run E2E
+        run: |
+          kind get kubeconfig --name=e2e >> $(pwd)/kubeconfig
+          export KUBECONFIG=$(pwd)/kubeconfig
+          nohup ./bin/terraform-controller &
+          go test -json -count=1 ./e2e/...
