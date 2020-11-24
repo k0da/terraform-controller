@@ -10,7 +10,7 @@ import (
 	tfv1 "github.com/rancher/terraform-controller/pkg/generated/controllers/terraformcontroller.cattle.io/v1"
 	"github.com/rancher/terraform-controller/pkg/git"
 	"github.com/rancher/terraform-controller/pkg/interval"
-	corev1 "github.com/rancher/wrangler-api/pkg/generated/controllers/core/v1"
+	corev1 "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -32,6 +32,9 @@ func (h *handler) OnChange(key string, module *v1.Module) (*v1.Module, error) {
 	if module == nil {
 		return nil, nil
 	}
+	if module.Spec.Git.IntervalSeconds == 0 {
+		module.Spec.Git.IntervalSeconds = int(interval.DefaultInterval / time.Second)
+	}
 
 	if isPolling(module.Spec) && needsUpdate(module) {
 		return h.updateCommit(key, module)
@@ -42,6 +45,7 @@ func (h *handler) OnChange(key string, module *v1.Module) (*v1.Module, error) {
 	}
 
 	h.modules.EnqueueAfter(module.Namespace, module.Name, time.Duration(module.Spec.Git.IntervalSeconds)*time.Second)
+
 	return h.modules.Update(module)
 }
 
@@ -126,7 +130,6 @@ func computeHash(obj *v1.Module) string {
 	if len(obj.Spec.Content) > 0 {
 		return digest.SHA256Map(obj.Spec.Content)
 	}
-
 	git := obj.Spec.Git
 	if git.URL == "" {
 		return ""

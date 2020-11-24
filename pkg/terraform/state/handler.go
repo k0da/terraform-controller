@@ -6,9 +6,9 @@ import (
 
 	v1 "github.com/rancher/terraform-controller/pkg/apis/terraformcontroller.cattle.io/v1"
 	tfv1 "github.com/rancher/terraform-controller/pkg/generated/controllers/terraformcontroller.cattle.io/v1"
-	batchv1 "github.com/rancher/wrangler-api/pkg/generated/controllers/batch/v1"
-	corev1 "github.com/rancher/wrangler-api/pkg/generated/controllers/core/v1"
-	rbacv1 "github.com/rancher/wrangler-api/pkg/generated/controllers/rbac/v1"
+	batchv1 "github.com/rancher/wrangler/pkg/generated/controllers/batch/v1"
+	corev1 "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
+	rbacv1 "github.com/rancher/wrangler/pkg/generated/controllers/rbac/v1"
 	"github.com/sirupsen/logrus"
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
