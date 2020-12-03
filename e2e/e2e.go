@@ -19,16 +19,18 @@ import (
 )
 
 type E2E struct {
-	ctx        context.Context
-	cs         *kubernetes.Clientset
-	cfg        *rest.Config
-	kubeconfig string
-	namespace  string
-	module_url string
-	crds       []crd.CRD
+	ctx            context.Context
+	cs             *kubernetes.Clientset
+	cfg            *rest.Config
+	kubeconfig     string
+	ctrl_namespace string
+	namespace      string
+	module_url     string
+	name           string
+	crds           []crd.CRD
 }
 
-func NewE2E(namespace, kubeconfig, module string, crdsNames []string) *E2E {
+func NewE2E(name, namespace, kubeconfig, module string, crdsNames []string) *E2E {
 	cfg, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		logrus.Fatalf("Error building kubeconfig: %s", err.Error())
@@ -45,13 +47,15 @@ func NewE2E(namespace, kubeconfig, module string, crdsNames []string) *E2E {
 	}
 
 	return &E2E{
-		ctx:        signals.SetupSignalHandler(context.Background()),
-		cs:         cs,
-		cfg:        cfg,
-		kubeconfig: kubeconfig,
-		namespace:  namespace,
-		module_url: module,
-		crds:       crds,
+		ctx:            signals.SetupSignalHandler(context.Background()),
+		cs:             cs,
+		cfg:            cfg,
+		kubeconfig:     kubeconfig,
+		ctrl_namespace: name,
+		namespace:      namespace,
+		name:           name,
+		module_url:     module,
+		crds:           crds,
 	}
 }
 

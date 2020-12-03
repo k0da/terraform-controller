@@ -17,7 +17,8 @@ import (
 )
 
 const (
-	NAMESPACE       = "terraform-controller"
+	NAME            = "terraform-controller"
+	NAMESPACE       = "app"
 	MODULE_URL      = "https://github.com/luthermonson/terraform-controller-test-module"
 	TEST_CONFIG_MAP = "test-config-map"
 )
@@ -30,12 +31,8 @@ func TestMain(m *testing.M) {
 	if _, err := os.Stat(kubeconfig); os.IsNotExist(err) {
 		logrus.Fatal("kubeconfig file does not exist")
 	}
-	namespace := os.Getenv("NAMESPACE")
-	if namespace == "" {
-		namespace = NAMESPACE
-	}
 
-	e = NewE2E(namespace, kubeconfig, MODULE_URL, []string{
+	e = NewE2E(NAME, NAMESPACE, kubeconfig, MODULE_URL, []string{
 		"Module",
 		"State",
 		"Execution",
