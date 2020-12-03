@@ -54,11 +54,6 @@ func main() {
 			Value:  "${HOME}/.kube/config",
 		},
 		cli.StringFlag{
-			Name:   "namespace",
-			EnvVar: "NAMESPACE",
-			Value:  "default",
-		},
-		cli.StringFlag{
 			Name:   "masterurl",
 			EnvVar: "MASTERURL",
 			Value:  "",
@@ -91,9 +86,8 @@ func run(c *cli.Context) {
 
 	threadiness := c.Int("threads")
 	masterurl := c.String("masterurl")
-	ns := c.String("namespace")
 
-	logrus.Printf("Booting Terraform Controller, namespace: %s", ns)
+	logrus.Println("Booting Terraform Controller")
 
 	ctx := signals.SetupSignalHandler(context.Background())
 
@@ -102,22 +96,22 @@ func run(c *cli.Context) {
 		logrus.Fatalf("Error building kubeconfig: %s", err.Error())
 	}
 
-	tfFactory, err := terraformcontroller.NewFactoryFromConfigWithNamespace(cfg, ns)
+	tfFactory, err := terraformcontroller.NewFactoryFromConfig(cfg)
 	if err != nil {
 		logrus.Fatalf("Error building terraform controllers: %s", err.Error())
 	}
 
-	coreFactory, err := core.NewFactoryFromConfigWithNamespace(cfg, ns)
+	coreFactory, err := core.NewFactoryFromConfig(cfg)
 	if err != nil {
 		logrus.Fatalf("Error building core controllers: %s", err.Error())
 	}
 
-	rbacFactory, err := rbac.NewFactoryFromConfigWithNamespace(cfg, ns)
+	rbacFactory, err := rbac.NewFactoryFromConfig(cfg)
 	if err != nil {
 		logrus.Fatalf("Error building rbac controllers: %s", err.Error())
 	}
 
-	batchFactory, err := batch.NewFactoryFromConfigWithNamespace(cfg, ns)
+	batchFactory, err := batch.NewFactoryFromConfig(cfg)
 	if err != nil {
 		logrus.Fatalf("Error building rbac controllers: %s", err.Error())
 	}
@@ -141,7 +135,7 @@ func run(c *cli.Context) {
 
 	<-ctx.Done()
 	}()
-	cont := types.NewContext(ns, tfFactory, coreFactory)
+	cont := types.NewContext(tfFactory, coreFactory)
 	logrus.Info("Setting up webhook listener")
 	addr := c.String("listen")
 	handler := hooks.HandleHooks(cont)
