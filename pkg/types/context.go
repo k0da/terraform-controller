@@ -7,15 +7,13 @@ import (
 )
 
 type Context struct {
-	Namespace string
 	Tfv1   *tfv1.Factory
 	Core   *core.Factory
 }
-func NewContext(namespace string, tfFactory *tfv1.Factory, coreFactory *core.Factory) *Context {
+func NewContext(tfFactory *tfv1.Factory, coreFactory *core.Factory) *Context {
 	context := &Context{
-		Namespace: namespace,
-			Tfv1:      tfFactory,
-			Core:      coreFactory,
+		Tfv1:      tfFactory,
+		Core:      coreFactory,
 	}
 	return context
 }

@@ -21,12 +21,10 @@ const (
 type GitHub struct {
 	modules     tfv1controller.ModuleController
 	secretCache corev1controller.SecretCache
-	namespace   string
 }
 
 func NewGitHub(rContext *types.Context) *GitHub {
 	return &GitHub{
-		namespace:   rContext.Namespace,
 		modules:     rContext.Tfv1.Terraformcontroller().V1().Module(),
 		secretCache: rContext.Core.Core().V1().Secret().Cache(),
 	}
