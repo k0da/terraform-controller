@@ -86,6 +86,7 @@ type StateSpec struct {
 	AutoConfirm     bool              `json:"autoConfirm,omitempty"`
 	DestroyOnDelete bool              `json:"destroyOnDelete,omitempty"`
 	Version         int32             `json:"version,omitempty"`
+	Workspace       string            `json:"workspace,omitempty"`
 	NodeSelector    map[string]string `json:"nodeSelector,omitempty"`
 }
 

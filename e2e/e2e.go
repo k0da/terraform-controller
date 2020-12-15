@@ -73,6 +73,20 @@ func (e *E2E) createState() error {
 	return nil
 }
 
+func (e *E2E) createStateWithWorkspace() error {
+	cs, err := tf.NewForConfig(e.cfg)
+	if err != nil {
+		return err
+	}
+
+	_, err = cs.States(e.namespace).Create(e.ctx, e.getStateWithWorkspace(), v12.CreateOptions{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (e *E2E) createModule() error {
 	cs, err := tf.NewForConfig(e.cfg)
 	if err != nil {
@@ -149,9 +163,34 @@ func (e *E2E) getState() *tfv1.State {
 		},
 	}
 }
+func (e *E2E) getStateWithWorkspace() *tfv1.State {
+	return &tfv1.State{
+		ObjectMeta: v12.ObjectMeta{
+			Name:      e.generateStateNameWithWorkspace(),
+			Namespace: e.namespace,
+		},
+		Spec: tfv1.StateSpec{
+			ModuleName:      e.generateModuleName(),
+			AutoConfirm:     true,
+			DestroyOnDelete: true,
+			Image:           "terraform-controller-executor:e2e",
+			Workspace:       "e2e",
+			Variables: tfv1.Variables{
+				ConfigNames:    []string{e.generateConfigMapName()},
+				EnvConfigName:  []string{e.generateConfigMapEnvName()},
+				SecretNames:    []string{e.generateSecretName()},
+				EnvSecretNames: []string{e.generateSecretEnvName()},
+			},
+		},
+	}
+}
 
 func (e *E2E) generateStateName() string {
 	return e.namespace + "-state"
+}
+
+func (e *E2E) generateStateNameWithWorkspace() string {
+	return e.namespace + "-state" + "-workspace"
 }
 
 func (e *E2E) generateModuleName() string {

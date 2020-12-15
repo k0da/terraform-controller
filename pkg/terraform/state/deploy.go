@@ -27,6 +27,7 @@ type Input struct {
 	Image      string
 	Module     *v1.Module
 	Secrets    []*coreV1.Secret
+	Workspace  string
 }
 
 // deployCreate creates all resources for the job to run terraform create and returns the run name
@@ -424,6 +425,10 @@ func createEnvForJob(input *Input, action, runName, namespace string) {
 		{
 			Name:  "TF_IN_AUTOMATION",
 			Value: "true",
+		},
+		{
+			Name:  "TF_WORKSPACE",
+			Value: input.Workspace,
 		},
 		{
 			Name:  "EXECUTOR_ACTION",
