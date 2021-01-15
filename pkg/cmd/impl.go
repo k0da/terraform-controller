@@ -40,7 +40,7 @@ func execute(command Command, storedStdout *[]string, storedStderr *[]string) er
 		return err
 	}
 
-	if err := readStdoutAndStderr(stdout, stderr, storedStdout, storedStderr, 1024); err != nil {
+	if err := readStdoutAndStderr(stdout, stderr, storedStdout, storedStderr, 0); err != nil {
 		return err
 	}
 
