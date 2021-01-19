@@ -57,7 +57,7 @@ func TestCreateModule(t *testing.T) {
 		logrus.Fatalf("Creating clientset for modules: %s", err.Error())
 	}
 
-	err = wait.Poll(time.Second, 45*time.Second, func() (bool, error) {
+	err = wait.Poll(time.Second, 15*time.Second, func() (bool, error) {
 		var err error
 		module, err := cs.Modules(e.namespace).Get(e.ctx, e.generateModuleName(), v13.GetOptions{})
 
@@ -176,7 +176,6 @@ func TestTerraState(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(len(ts.Items), 1)
 	assert.NotEmpty(ts.Items[0].Data["tfstate"])
-	assert.Empty(ts.Items[0].Data["lockInfo"])
 }
 
 func TestDeleteState(t *testing.T) {
@@ -205,3 +204,49 @@ func TestDeleteJobComplete(t *testing.T) {
 	assert.Nil(err)
 	assert.True(configMapDeleted)
 }
+
+func TestCreateStateWithWorkspace(t *testing.T) {
+
+	assert := assert.New(t)
+	err := e.createStateWithWorkspace()
+	if err != nil {
+		logrus.Fatalf("Creating terraform state failed: %s", err.Error())
+	}
+
+	cs, err := tf.NewForConfig(e.cfg)
+	if err != nil {
+		logrus.Fatalf("Creating clientset for states: %s", err.Error())
+	}
+
+	err = wait.Poll(time.Second, 15*time.Second, func() (bool, error) {
+		var err error
+		state, err := cs.States(e.namespace).Get(e.ctx, e.generateStateNameWithWorkspace(), v13.GetOptions{})
+
+		if err == nil && state.Status.LastRunHash != "" {
+			return true, nil
+		}
+		logrus.Printf("Waiting for state to be ready and have a run hash: %+v\n", err)
+
+		return false, err
+	})
+
+	assert.Nil(err)
+}
+func TestTerraStateWithWorkspace(t *testing.T) {
+	assert := assert.New(t)
+	err := wait.Poll(time.Second, 45*time.Second, func() (bool, error) {
+		_, err := e.cs.CoreV1().Secrets(e.namespace).List(e.ctx, v13.ListOptions{
+			LabelSelector: "tfstateWorkspace=e2e",
+		})
+		if err == nil {
+			return true, nil
+		}
+		logrus.Printf("Waiting for state to be ready with workspace label: %+v\n", err)
+		return false, err
+	})
+
+	assert.Nil(err)
+//	assert.Equal(len(ts.Items), 1)
+//	assert.NotEmpty(ts.Items[0].Data["tfstate"])
+}
+

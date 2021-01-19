@@ -13,8 +13,9 @@ import (
 
 func (h *handler) gatherInput(obj *v1.State) (*Input, bool, error) {
 	var (
-		ns   = obj.Namespace
-		spec = obj.Spec
+		ns        = obj.Namespace
+		spec      = obj.Spec
+		workspace = spec.Workspace
 	)
 
 	mod, err := h.modules.Get(ns, spec.ModuleName, metaV1.GetOptions{})
@@ -51,6 +52,10 @@ func (h *handler) gatherInput(obj *v1.State) (*Input, bool, error) {
 		return nil, false, errors.New("pulling environment variables failed")
 	}
 
+	if workspace == "" {
+		workspace = "default"
+	}
+
 	return &Input{
 		Configs:    configs,
 		EnvVars:    envVars,
@@ -58,6 +63,7 @@ func (h *handler) gatherInput(obj *v1.State) (*Input, bool, error) {
 		Image:      spec.Image,
 		Module:     mod,
 		Secrets:    secrets,
+		Workspace:  workspace,
 	}, true, nil
 }
 
