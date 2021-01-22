@@ -1,0 +1,67 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: terraform-controller 
+rules:
+- apiGroups:
+  - terraformcontroller.cattle.io
+  resources:
+  - states
+  verbs:
+  - get
+  - list
+  - watch
+  - patch
+  - update
+  resources:
+  - modules
+  verbs:
+  - get
+  - list
+  - watch
+  - patch
+  - update
+  resources:
+  - executions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - watch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get 
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets 
+  verbs:
+  - get 
+  - watch
+  - create
+  - delete
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - serviaaccounts
+  verbs:
+  - create
+  - delete
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - jobs
+  verbs:
+  - create
+  - update
+  - get
+  - delete
