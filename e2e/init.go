@@ -104,7 +104,7 @@ func (e *E2E) getCrb() *v1.ClusterRoleBinding {
 		RoleRef: v1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
-			Name:     "cluster-admin",
+			Name:     "terraform-controller",
 		},
 		Subjects: []v1.Subject{
 			{
