@@ -1,16 +1,58 @@
 apiVersion: v2
 name: terraform-controller 
 description: Terraform controller Helm Chart 
-
-# A chart can be either an 'application' or a 'library' chart.
-#
-# Application charts are a collection of templates that can be packaged into versioned archives
-# to be deployed.
-#
-# Library charts provide useful utilities or functions for the chart developer. They're included as
-# a dependency of application charts to inject those utilities and functions into the rendering
-# pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
 
 version: ${VERSION}
 appVersion: ${VERSION}
+
+keywords:
+  - terraform
+  - kubernetes-operator
+  - kubernetes-controller
+  - terraform-controller
+
+sources:
+  - https://github.com/AbsaOSS/terraform-controller
+
+annotations:
+  artifacthub.io/operator: "true"
+  artifacthub.io/operatorCapabilities: Seamless Upgrades
+  artifacthub.io/crds: |
+    - kind: Module
+      version: v1
+      name: module
+      displayName: Module
+      description: Module resource referencing Terraform module git repository
+    - kind: State
+      version: v1
+      name: state
+      displayName: State
+      description: State resource coupling Module and configuration to create terraform Execution
+    - kind: Execution
+      version: v1
+      name: execution
+      displayName: Execution
+      description: Execution contains exact Module reference including git hash, terraform logs and any terraform outputs
+  artifacthub.io/crdsExamples: |
+    - apiVersion: terraformcontroller.cattle.io/v1
+      kind: Module
+      metadata:
+        name: my-module
+      spec:
+        git:
+          url: https://github.com/dramich/domodule
+    - apiVersion: terraformcontroller.cattle.io/v1
+      kind: State
+      metadata:
+        name: my-state
+      spec:
+        moduleName: my-module
+        destroyOnDelete: true
+        autoConfirm: true
+        image: rancher/terraform-controller-executor:v0.0.10-alpha1
+        variables:
+          secretNames:
+            - mysecret
+          envConfigNames:
+            - env-config
