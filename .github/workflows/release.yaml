@@ -39,3 +39,9 @@ jobs:
         path: ./bin
         dockerfile: package/Dockerfile.executor
         tag_with_ref: true
+    - uses: dave-mcconnell/helm-gh-pages-microservices@master
+      with:
+        access-token: ${{ secrets.REPO_TOKEN }}
+        source-charts-folder: 'chart'
+        destination-repo: absaoss/terraform-controller
+        destination-branch: gh-pages
