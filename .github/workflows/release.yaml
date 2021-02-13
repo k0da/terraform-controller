@@ -39,6 +39,11 @@ jobs:
         path: ./bin
         dockerfile: package/Dockerfile.executor
         tag_with_ref: true
+    - run: |
+        sed -i \
+        -e "s/version:.*/version: ${GITHUB_REF}" \
+        -e "s/appVersion:.*/appVersion: ${GITHUB_REF}" \
+        chart/terraform-controller/Chart.yaml
     - uses: dave-mcconnell/helm-gh-pages-microservices@master
       with:
         access-token: ${{ secrets.REPO_TOKEN }}
