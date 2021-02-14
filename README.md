@@ -1,10 +1,9 @@
-[EXPERIMENTAL] terraform-controller
+terraform-controller
 ========
 
 ## ***Use K8s to Run Terraform***
 
-**NOTE:** We are actively experimenting with this in the open. Consider this ALPHA software and subject to change.
-
+**NOTE:** This is a fork  of [https://github.com/rancher/terraform-controller](rancher/terraform-controller) with added features which are not accepted upstream (yet?).
 Terraform-controller - This is a low level tool to run Git controlled Terraform modules in Kubernetes. The controller manages the TF state file using Kubernetes as a remote statefile backend (requires Terraform 0.13.1)! You can have changes auto-applied or wait for an explicit "OK" before running. 
 
 There are two parts to the stack, the controller and the executor. 
@@ -15,8 +14,10 @@ The executor is a job that runs Terraform. Taking input from the execution run C
 
 Executions have a 1-to-many relationship with execution runs, as updates or changes are made in the module or execution additional runs are created to update the terraform resources.
 
-# Deploying
-Use provided manifests `kubectl create -f ./manifests` to deploy to an existing k8s cluster. Manifests will create all CRDs necessary and a Deployment with the rancher/terraform-controller image. 
+# Deploying with helm
+```
+helm repo add terraform-controller https://absaoss.github.io/terraform-controller
+helm install -n terraform-controller tfctrl terraform-controller/terraform-controller
 
 ## Verify
 ```
@@ -31,11 +32,8 @@ NAME                                              DESIRED   CURRENT   READY   AG
 replicaset.apps/terraform-controller-8494cf85c5   1         1         1       18s
 ```
 
-## Namespace
-Everything is put in the `terraform-controller` namespace with these provided manifests. Edit metadata.namespace in files to change name space or remove to run in default. You will need to update the args for the command in the deployment to update or remove `--namespace` argument for the executable. Passing in the flag limits the controller to only watching CRD objects in it's namespace, remove this param to let the terraform-controller see all CRD objects in any namespace.
-
 ## Quickstart Appliance + k3s
-Use (k3d)[https://github.com/rancher/k3d/releases] to spin up small (k3s)[https://github.com/rancher/k3s] clusters for a quick start for using the Terraform Controller. The appliance image comes pre-built with the deployment manifests and will auto-create verything the Terraform Controller needs when they boot.
+Use [https://github.com/rancher/k3d/releases](k3d)to spin up small [https://github.com/rancher/k3s](k3s) clusters for a quick start for using the Terraform Controller. The appliance image comes pre-built with the deployment manifests and will auto-create verything the Terraform Controller needs when they boot.
 
 ```shell
 ~ k3d create --name terraform-controller --image rancher/terraform-controller-appliance
@@ -88,7 +86,7 @@ With destroyOnDelete turned off you will have to delete the Droplet by hand as a
 Create a Dockerfile
 
 ```
-FROM rancher/terraform-controller-executor:v0.0.3 #Or whatever the release is
+FROM absaoss/terraform-controller-executor:v0.0.3 #Or whatever the release is
 RUN curl https://myurl.com/get-some-binary
 ```
 
@@ -97,7 +95,7 @@ Build that image and push to a registry.
 When creating the execution define the image:
 ```
 apiVersion: terraformcontroller.cattle.io/v1
-kind: Execution
+kind: State
 metadata:
   name: cluster-create
 spec:
@@ -112,7 +110,7 @@ spec:
     - env-config
 ```
 
-If you already have an execution, edit the CR via kubectl and add the image field.
+If you already have a state, edit the CR via kubectl and add the image field.
 
 ## Building
 `make`
@@ -121,7 +119,7 @@ If you already have an execution, edit the CR via kubectl and add the image fiel
 Use `./bin/terraform-controller`
 
 ### Running the Executor in Docker - Useful for testing the Executor
-docker run -d -v "/Path/To/Kubeconfig:/root/.kube/config" -e "KUBECONFIG=/root/.kube/config" -e "EXECUTOR_RUN_NAME=RUN_NAME" -e "EXECUTOR_ACTION=create" rancher/terraform-controller-executor:dev
+docker run -d -v "/Path/To/Kubeconfig:/root/.kube/config" -e "KUBECONFIG=/root/.kube/config" -e "EXECUTOR_RUN_NAME=RUN_NAME" -e "EXECUTOR_ACTION=create" absaoss/terraform-controller-executor:dev
 
 ## License
 Copyright (c) 2019 [Rancher Labs, Inc.](http://rancher.com)
