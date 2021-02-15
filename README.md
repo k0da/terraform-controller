@@ -4,6 +4,7 @@ terraform-controller
 ## ***Use K8s to Run Terraform***
 
 **NOTE:** This is a fork  of [https://github.com/rancher/terraform-controller](rancher/terraform-controller) with added features which are not accepted upstream (yet?).
+
 Terraform-controller - This is a low level tool to run Git controlled Terraform modules in Kubernetes. The controller manages the TF state file using Kubernetes as a remote statefile backend (requires Terraform 0.13.1)! You can have changes auto-applied or wait for an explicit "OK" before running. 
 
 There are two parts to the stack, the controller and the executor. 
@@ -15,7 +16,7 @@ The executor is a job that runs Terraform. Taking input from the execution run C
 Executions have a 1-to-many relationship with execution runs, as updates or changes are made in the module or execution additional runs are created to update the terraform resources.
 
 # Deploying with helm
-```
+```shell
 helm repo add terraform-controller https://absaoss.github.io/terraform-controller
 helm install -n terraform-controller tfctrl terraform-controller/terraform-controller
 
@@ -93,7 +94,7 @@ RUN curl https://myurl.com/get-some-binary
 Build that image and push to a registry.
 
 When creating the execution define the image:
-```
+```yaml
 apiVersion: terraformcontroller.cattle.io/v1
 kind: State
 metadata:
