@@ -15,6 +15,6 @@ cp -rf chart build/
 sed -i \
     -e 's/version:.*/version: '${HELM_TAG}'/' \
     -e 's/appVersion:.*/appVersion: '${HELM_TAG}'/' \
-    build/chart/Chart.yaml
+    build/chart/terraform-controller/Chart.yaml
 
-helm package -d ./dist/artifacts ./build/chart
+helm package -d ./dist/artifacts ./build/chart/terraform-controller
