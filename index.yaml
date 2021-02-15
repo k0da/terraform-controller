@@ -1,0 +1,62 @@
+apiVersion: v1
+entries:
+  terraform-controller:
+  - annotations:
+      artifacthub.io/crds: |
+        - kind: Module
+          version: v0.0.17
+          name: module
+          displayName: Module
+          description: Module resource referencing Terraform module git repository
+        - kind: State
+          version: v0.0.17
+          name: state
+          displayName: State
+          description: State resource coupling Module and configuration to create terraform Execution
+        - kind: Execution
+          version: v0.0.17
+          name: execution
+          displayName: Execution
+          description: Execution contains exact Module reference including git hash, terraform logs and any terraform outputs
+      artifacthub.io/crdsExamples: |
+        - apiVersion: terraformcontroller.cattle.io/v1
+          kind: Module
+          metadata:
+            name: my-module
+          spec:
+            git:
+              url: https://github.com/dramich/domodule
+        - apiVersion: terraformcontroller.cattle.io/v1
+          kind: State
+          metadata:
+            name: my-state
+          spec:
+            moduleName: my-module
+            destroyOnDelete: true
+            autoConfirm: true
+            image: rancher/terraform-controller-executor:v0.0.10-alpha1
+            variables:
+              secretNames:
+                - mysecret
+              envConfigNames:
+                - env-config
+      artifacthub.io/operator: "true"
+      artifacthub.io/operatorCapabilities: Seamless Upgrades
+    apiVersion: v2
+    appVersion: v0.0.17
+    created: "2021-02-15T14:52:52.55793177Z"
+    description: Terraform controller Helm Chart
+    digest: 69eeb8e3d60c0faf2f87bbc34d998387440b368f6171d769c585f564c3c81093
+    keywords:
+    - terraform
+    - kubernetes-operator
+    - kubernetes-controller
+    - terraform-controller
+    name: terraform-controller
+    sources:
+    - https://github.com/AbsaOSS/terraform-controller
+    type: application
+    urls:
+    - charts/terraform-controller-v0.0.17.tgz
+    version: v0.0.17
+generated: "2021-02-15T14:52:52.557418069Z"
