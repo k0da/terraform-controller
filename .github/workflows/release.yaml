@@ -42,9 +42,9 @@ jobs:
     - run: |
         export TAG=${GITHUB_REF#refs/tags/}
         sed -i -e "s/version:.*/version: ${TAG}/" -e "s/appVersion:.*/appVersion: ${TAG}/" chart/terraform-controller/Chart.yaml
-    - uses: dave-mcconnell/helm-gh-pages-microservices@master
+    - uses: k0da/helm-gh-pages-microservices@source_repo
       with:
         access-token: ${{ secrets.REPO_TOKEN }}
         source-charts-folder: 'chart'
-        destination-repo: absaoss/terraform-controller
+        destination-repo: k0da/terraform-controller
         destination-branch: gh-pages
