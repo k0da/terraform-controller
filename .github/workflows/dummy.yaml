@@ -1,0 +1,22 @@
+name: Dummy 
+
+on: push 
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: aaa 
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Commit changelog
+        run: |
+          git config user.name 'Github Action'
+          git config user.email 'action@users.noreply.github.com'
+          echo `date` > foo
+          git add foo
+          git commit -m "Update Offline Changelog"
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
