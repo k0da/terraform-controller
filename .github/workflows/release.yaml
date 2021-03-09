@@ -39,12 +39,16 @@ jobs:
         path: ./bin
         dockerfile: package/Dockerfile.executor
         tag_with_ref: true
-    - run: |
-        export TAG=${GITHUB_REF#refs/tags/}
-        sed -i -e "s/version:.*/version: ${TAG}/" -e "s/appVersion:.*/appVersion: ${TAG}/" chart/terraform-controller/Chart.yaml
-    - uses: k0da/helm-gh-pages-microservices@master
+    - name: compute-tag
+      id: tag
+      run: |
+        echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+        echo ::set-output name=semver::${GITHUB_REF#refs/tags/v}
+    - uses: absaoss/helm-gh-pages-microservices@master
       with:
         access-token: ${{ secrets.REPO_TOKEN }}
         source-charts-folder: 'chart'
         destination-repo: absaoss/terraform-controller
         destination-branch: gh-pages
+        helm-chart-version: ${{ steps.tag.outputs.semver }}
+        helm-app-version:  ${{ steps.tag.outputs.tag}}
