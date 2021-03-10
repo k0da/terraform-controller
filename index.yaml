@@ -57,6 +57,6 @@ entries:
     - https://github.com/AbsaOSS/terraform-controller
     type: application
     urls:
-    - charts/terraform-controller-v0.0.17.tgz
+    - terraform-controller-v0.0.17.tgz
     version: v0.0.17
 generated: "2021-02-15T14:52:52.557418069Z"
